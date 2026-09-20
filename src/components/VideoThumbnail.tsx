@@ -50,7 +50,7 @@ export function VideoThumbnail({ src, title, aspectRatio = "video", className = 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+
   const [thumbnailLoaded, setThumbnailLoaded] = useState(false);
   const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
   // Showreel is started by an explicit click (a user gesture), so sound is allowed and expected.
@@ -89,7 +89,7 @@ export function VideoThumbnail({ src, title, aspectRatio = "video", className = 
     videoAutoplayQueue.add(async () => {
       if (videoRef.current) {
         setIsLoading(true);
-        try { await videoRef.current.play(); } catch { setIsLoading(false); }
+        try { await videoRef.current.play(); } catch { /* play interrupted or blocked — ignore */ }
       }
     });
   };
@@ -188,9 +188,9 @@ export function VideoThumbnail({ src, title, aspectRatio = "video", className = 
     if (!videoRef.current) return;
     if (isPlaying) { videoRef.current.pause(); setIsPlaying(false); }
     else {
-      if (!videoLoaded) { setIsLoading(true); videoRef.current.src = src; videoRef.current.load(); hasLoadedOnceRef.current = true; }
+      if (!videoLoaded) { videoRef.current.src = src; videoRef.current.load(); hasLoadedOnceRef.current = true; }
       try { setVideoError(false); await videoRef.current.play(); setIsPlaying(true); }
-      catch { setIsLoading(false); setVideoError(true); }
+      catch { setVideoError(true); }
     }
   };
 
@@ -227,34 +227,19 @@ export function VideoThumbnail({ src, title, aspectRatio = "video", className = 
           onError={() => setThumbnailLoaded(false)} />
       )}
 
-      {/* Fallback placeholder — shown any time we don't yet have a visible thumbnail or playing video */}
-      {!thumbnailLoaded && !hasStartedPlaying && (
-        <div className="absolute inset-0 flex items-center justify-center"
-             style={{ background: 'linear-gradient(135deg, #1a1a1a 0%, #111 100%)' }}>
-          <div className="w-6 h-6 border border-white/20 border-t-white/50 rounded-full animate-spin" />
-        </div>
-      )}
-
       {/* Video */}
       {!isUnsupportedFormat && (
         <video ref={videoRef}
           className={`absolute inset-0 w-full h-full ${isFullscreen ? 'object-contain' : 'object-cover'} transition-opacity duration-300 ${hasStartedPlaying ? 'opacity-100' : 'opacity-0'}`}
           loop playsInline preload="auto" muted={isMuted}
           onLoadedData={() => setVideoLoaded(true)}
-          onPlay={() => { setIsPlaying(true); setHasStartedPlaying(true); setIsLoading(false); setVideoError(false); }}
+          onPlay={() => { setIsPlaying(true); setHasStartedPlaying(true); setVideoError(false); }}
           onPause={() => setIsPlaying(false)}
           onEnded={() => setIsPlaying(false)}
           onTimeUpdate={() => { if (videoRef.current && !isDragging) setCurrentTime(videoRef.current.currentTime); }}
           onLoadedMetadata={() => { if (videoRef.current) setDuration(videoRef.current.duration); }}
-          onError={() => { setIsLoading(false); setIsPlaying(false); setVideoError(true); }}
+          onError={() => { setIsPlaying(false); setVideoError(true); }}
         />
-      )}
-
-      {/* Loading */}
-      {isLoading && !isUnsupportedFormat && (
-        <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-20">
-          <div className="w-10 h-10 border border-white/20 border-t-white/70 rounded-full animate-spin" />
-        </div>
       )}
 
       {/* Gradient overlay on hover */}
@@ -278,7 +263,7 @@ export function VideoThumbnail({ src, title, aspectRatio = "video", className = 
         <div className="absolute inset-0 flex items-center justify-center z-20">
           <div className={`rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-300 border border-white/20
             ${aspectRatio === 'vertical' ? (isFullscreen ? 'w-20 h-20' : 'w-11 h-11') : (isFullscreen ? 'w-24 h-24' : 'w-14 h-14')}
-            ${(isPlaying && !isLoading) ? 'opacity-0 group-hover:opacity-100 bg-black/40' : 'opacity-100 bg-black/35'}
+            ${isPlaying ? 'opacity-0 group-hover:opacity-100 bg-black/40' : 'opacity-100 bg-black/35'}
           `}>
             {isPlaying
               ? <Pause className={`text-white ${aspectRatio === 'vertical' ? (isFullscreen ? 'w-8 h-8' : 'w-4 h-4') : (isFullscreen ? 'w-10 h-10' : 'w-5 h-5')}`} />
