@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Aamir Naqvi</title>
+
+    <!-- Preconnect to font + CDN origins for faster loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+    <!-- Preload critical images only (now optimized: ~100-170KB each instead of 1.5-3.2MB) -->
+    <link rel="preload" as="image" href="/pc/bg.webp" media="(min-width: 768px)" fetchpriority="high">
+    <link rel="preload" as="image" href="/pc/me.webp" media="(min-width: 768px)" fetchpriority="high">
+    <link rel="preload" as="image" href="/pc/me 2.webp" media="(min-width: 768px)" fetchpriority="high">
+    <link rel="preload" as="image" href="/mobile/mbbg.webp" media="(max-width: 767px)" fetchpriority="high">
+    <link rel="preload" as="image" href="/mobile/mbme.webp" media="(max-width: 767px)" fetchpriority="high">
+
+    <!-- Critical CSS inline -->
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html, body, #root {
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+      }
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        background: #f5f2ec;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+    </style>
+
+    <!-- Load fonts asynchronously to prevent render blocking — single combined request -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Akshar:wght@300..700&family=Anton&family=Bebas+Neue&family=IBM+Plex+Sans:ital,wdth@0,75;1,75&display=swap" media="print" onload="this.media='all'">
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Akshar:wght@300..700&family=Anton&family=Bebas+Neue&family=IBM+Plex+Sans:ital,wdth@0,75;1,75&display=swap" rel="stylesheet">
+    </noscript>
+
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- Pre-React loading overlay: removed once React mounts and hero images are ready -->
+    <div id="initial-loader" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#f5f2ec;transition:opacity 0.6s cubic-bezier(0.4,0,0.2,1);">
+      <div style="width:32px;height:32px;border:2px solid rgba(201,168,76,0.18);border-top-color:#c9a84c;border-radius:50%;animation:initial-spin 0.7s linear infinite;"></div>
+    </div>
+    <style>
+      @keyframes initial-spin{to{transform:rotate(360deg)}}
+      #initial-loader.is-done{opacity:0;pointer-events:none;}
+    </style>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
